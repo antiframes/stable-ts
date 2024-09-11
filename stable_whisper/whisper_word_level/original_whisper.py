@@ -212,6 +212,8 @@ def transcribe_stable(
     >>> result.to_srt_vtt('audio.srt')
     Saved: audio.srt
     """
+
+    print("ORIGINAL WHISPER")
     if mel_first is not None:
         warnings.warn('``mel_first`` is deprecated and will be removed in future versions.'
                       'Use ``stream`` (e.g. replace ``mel_first=True`` with ``stream=False``).',
