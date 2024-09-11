@@ -125,7 +125,7 @@ def faster_transcribe(
     >>> result.to_srt_vtt('audio.srt')
     Saved: audio.srt
     """
-    warnings.warn("FASTER WHISPER")
+
     audioloader_not_supported(audio)
     extra_options = isolate_useful_options(options, transcribe_any, pop=True)
     denoiser, denoiser_options = convert_demucs_kwargs(

@@ -213,7 +213,6 @@ def transcribe_stable(
     Saved: audio.srt
     """
 
-    warnings.warn("ORIGINAL WHISPER")
     if mel_first is not None:
         warnings.warn('``mel_first`` is deprecated and will be removed in future versions.'
                       'Use ``stream`` (e.g. replace ``mel_first=True`` with ``stream=False``).',
@@ -444,6 +443,8 @@ def transcribe_stable(
             segment_duration = segment_samples / SAMPLE_RATE
 
             silence_preds = nonspeech_predictor.predict(audio_segment, offset=time_offset)
+            print(str(time_offset), str(segment_duration))
+            print(str(silence_preds))
             segment_silence_timing = silence_preds['timings'] if suppress_silence else None
             ts_token_mask = silence_preds['mask'] if suppress_ts_tokens else None
             is_silent_segment = silence_preds['is_silent']
