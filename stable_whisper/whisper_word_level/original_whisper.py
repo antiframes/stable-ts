@@ -460,6 +460,7 @@ def transcribe_stable(
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
             result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
             tokens = torch.tensor(result.tokens)
+            print("TOKENS", str(tokens))
 
             if no_speech_threshold is not None:
                 # no voice activity check
@@ -469,6 +470,7 @@ def transcribe_stable(
                     should_skip = False
 
                 if should_skip:
+                    print("SHOULD SKIP", str(time_offset), str(segment_duration))
                     fast_forward()
                     continue
 
@@ -530,6 +532,8 @@ def transcribe_stable(
 
             for i in reversed(range(len(current_segments))):
                 seg = current_segments[i]
+                print("SEGMENT TEXT")
+                print(str(seg["text"]))
                 if seg["text"].strip() in punctuations:
                     del current_segments[i]
                 else:
