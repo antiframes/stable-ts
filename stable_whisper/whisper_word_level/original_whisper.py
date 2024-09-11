@@ -410,6 +410,7 @@ def transcribe_stable(
     )
     audio.update_post_prep_callback(nonspeech_predictor.get_on_prep_callback(audio.stream))
 
+    segment_texts = []
     with tqdm(total=initial_duration, unit='sec', disable=verbose is not False, desc=task.title()) as tqdm_pbar:
 
         def update_pbar():
@@ -460,7 +461,7 @@ def transcribe_stable(
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
             result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
             tokens = torch.tensor(result.tokens)
-            print("TOKENS", str(tokens))
+            #print("TOKENS", str(tokens))
 
             if no_speech_threshold is not None:
                 # no voice activity check
@@ -530,10 +531,11 @@ def transcribe_stable(
                     )
                 )
 
+
             for i in reversed(range(len(current_segments))):
                 seg = current_segments[i]
-                print("SEGMENT TEXT")
-                print(str(seg["text"]))
+
+                segment_texts.append(seg["text"])
                 if seg["text"].strip() in punctuations:
                     del current_segments[i]
                 else:
@@ -556,6 +558,7 @@ def transcribe_stable(
                             else:
                                 new_start = max_end
                             seg['start'] = new_start
+
 
             num_samples = (
                 min(round(end_timestamp_pos * N_SAMPLES_PER_TOKEN), segment_samples)
@@ -640,6 +643,8 @@ def transcribe_stable(
         # final update
         update_pbar()
 
+    for text in segment_texts:
+        print(text)
     if model.device != torch.device('cpu'):
         torch.cuda.empty_cache()
 
