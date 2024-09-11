@@ -213,7 +213,7 @@ def transcribe_stable(
     Saved: audio.srt
     """
 
-    print("ORIGINAL WHISPER")
+    warnings.warn("ORIGINAL WHISPER")
     if mel_first is not None:
         warnings.warn('``mel_first`` is deprecated and will be removed in future versions.'
                       'Use ``stream`` (e.g. replace ``mel_first=True`` with ``stream=False``).',
