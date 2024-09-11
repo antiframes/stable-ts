@@ -443,13 +443,12 @@ def transcribe_stable(
             segment_duration = segment_samples / SAMPLE_RATE
 
             silence_preds = nonspeech_predictor.predict(audio_segment, offset=time_offset)
-            print(str(time_offset), str(segment_duration))
-            print(str(silence_preds))
             segment_silence_timing = silence_preds['timings'] if suppress_silence else None
             ts_token_mask = silence_preds['mask'] if suppress_ts_tokens else None
             is_silent_segment = silence_preds['is_silent']
 
             if is_silent_segment:
+                print("SILENCE", str(time_offset), str(segment_duration))
                 fast_forward()
                 continue
 
