@@ -468,7 +468,7 @@ def transcribe_stable(
 
             if time_offset>204 and time_offset<245:
                 print('\nMEL SEGMENT')
-                print(str(mel_segment))
+                print(str(mel_segment.size()))
 
             detect_language()
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
