@@ -533,10 +533,10 @@ def transcribe_stable(
             if time_offset>204 and time_offset<245:
                 print(time_offset)
                 for i in range(len(current_segments)):
-                    print(seg["text"])
+                    print(current_segments[i]["text"])
 
             for i in range(len(current_segments)):
-                segment_texts.append(seg["text"])
+                segment_texts.append(current_segments[i]["text"])
 
             for i in reversed(range(len(current_segments))):
                 seg = current_segments[i]
