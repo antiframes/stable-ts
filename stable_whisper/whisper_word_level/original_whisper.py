@@ -440,12 +440,13 @@ def transcribe_stable(
                 break
             time_offset = seek_sample / SAMPLE_RATE
 
-            if time_offset<204 or time_offset>245: #TODO remove when finished
-                fast_forward()
-                continue
             segment_samples = audio_segment.shape[-1]
             segment_duration = segment_samples / SAMPLE_RATE
 
+            if time_offset<204 or time_offset>245: #TODO remove when finished
+                fast_forward()
+                continue
+                
             silence_preds = nonspeech_predictor.predict(audio_segment, offset=time_offset)
             segment_silence_timing = silence_preds['timings'] if suppress_silence else None
             ts_token_mask = silence_preds['mask'] if suppress_ts_tokens else None
