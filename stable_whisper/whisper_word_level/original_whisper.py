@@ -443,19 +443,20 @@ def transcribe_stable(
             segment_samples = audio_segment.shape[-1]
             segment_duration = segment_samples / SAMPLE_RATE
 
-            if time_offset<204 or time_offset>245: #TODO remove when finished
+            if time_offset>245: #TODO remove when finished
                 fast_forward()
                 continue
-            time_offset += 1.18 #to force failed sample
+
             silence_preds = nonspeech_predictor.predict(audio_segment, offset=time_offset)
             segment_silence_timing = silence_preds['timings'] if suppress_silence else None
             ts_token_mask = silence_preds['mask'] if suppress_ts_tokens else None
             is_silent_segment = silence_preds['is_silent']
 
-            print("\nSILENCE DATA")
-            print(str(segment_silence_timing))
-            print(str(ts_token_mask))
-            print(str(is_silent_segment))
+            if time_offset>204 and time_offset<245:
+                print("\nSILENCE DATA")
+                print(str(segment_silence_timing))
+                print(str(ts_token_mask))
+                print(str(is_silent_segment))
 
             if is_silent_segment:
                 fast_forward()
@@ -470,10 +471,11 @@ def transcribe_stable(
             result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
             tokens = torch.tensor(result.tokens)
 
-            print("\nDECODING RESULTS")
-            print(str(decode_options["prompt"]))
-            print(str(result))
-            print(str(tokens))
+            if time_offset>204 and time_offset<245:
+                print("\nDECODING RESULTS")
+                print(str(decode_options["prompt"]))
+                print(str(result))
+                print(str(tokens))
 
             if no_speech_threshold is not None:
                 # no voice activity check
@@ -491,9 +493,10 @@ def transcribe_stable(
             timestamp_tokens: torch.Tensor = tokens.ge(tokenizer.timestamp_begin)
             single_timestamp_ending = timestamp_tokens[-2:].tolist() == [False, True]
 
-            print("\nTOKEN DATA")
-            print(str(timestamp_tokens))
-            print(str(single_timestamp_ending))
+            if time_offset>204 and time_offset<245:
+                print("\nTOKEN DATA")
+                print(str(timestamp_tokens))
+                print(str(single_timestamp_ending))
 
             consecutive = torch.where(timestamp_tokens[:-1] & timestamp_tokens[1:])[0]
             consecutive.add_(1)
