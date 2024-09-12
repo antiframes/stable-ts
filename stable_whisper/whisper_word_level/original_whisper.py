@@ -464,7 +464,11 @@ def transcribe_stable(
 
             sample_padding = max(N_SAMPLES - segment_samples, 0)
             mel_segment = log_mel_spectrogram(audio_segment, model.dims.n_mels, padding=sample_padding)
-            #mel_segment = pad_or_trim(mel_segment, N_FRAMES).to(device=model.device, dtype=dtype)
+            mel_segment = pad_or_trim(mel_segment, N_FRAMES).to(device=model.device, dtype=dtype)
+
+            if time_offset>204 and time_offset<245:
+                print('\nMEL SEGMENT')
+                print(str(mel_segment))
 
             detect_language()
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
