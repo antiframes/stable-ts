@@ -464,7 +464,7 @@ def transcribe_stable(
 
             sample_padding = max(N_SAMPLES - segment_samples, 0)
             mel_segment = log_mel_spectrogram(audio_segment, model.dims.n_mels, padding=sample_padding)
-            mel_segment = pad_or_trim(mel_segment, N_FRAMES).to(device=model.device, dtype=dtype)
+            #mel_segment = pad_or_trim(mel_segment, N_FRAMES).to(device=model.device, dtype=dtype)
 
             detect_language()
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
@@ -548,21 +548,7 @@ def transcribe_stable(
                         result=result,
                     )
                 )
-            '''
-            Transcribe:   6%|▌         | 241.18/4305.55 [00:54<09:56,  6.81sec/s]
 
-            211.18 (3:31.18)
-             Liturgische Bewegung
-
-            Transcribe:   6%|▌         | 267.02/4305.55 [00:59<10:41,  6.30sec/s]
-
-            241.18 (3:41:18)
-             Ein Wort, das in einem Sinn erneuern wollte, der ihnen als modern, zeitgemäß oder auch als wissenschaftlich erschien.
-             Schon damals machte man natürlich ohne Erlaubnis des Papstes Experimente, zum Beispiel mit der Verwendung der Landessprache oder der Zelebration zum Volk hin.
-
-            Transcribe: 100%|█████████▉| 4305.51/4305.55 [14:09<00:00,  5.07sec/s]
-
-            '''
             if time_offset>204 and time_offset<245:
                 print(time_offset)
                 for i in range(len(current_segments)):
