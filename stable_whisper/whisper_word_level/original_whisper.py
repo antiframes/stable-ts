@@ -410,7 +410,6 @@ def transcribe_stable(
     )
     audio.update_post_prep_callback(nonspeech_predictor.get_on_prep_callback(audio.stream))
 
-    segment_texts = []
     with tqdm(total=initial_duration, unit='sec', disable=verbose is not False, desc=task.title()) as tqdm_pbar:
 
         def update_pbar():
@@ -440,6 +439,10 @@ def transcribe_stable(
             if audio_segment is None:
                 break
             time_offset = seek_sample / SAMPLE_RATE
+
+            if time_offset<204 or time_offset>245: #TODO remove when finished
+                fast_forward()
+                continue
             segment_samples = audio_segment.shape[-1]
             segment_duration = segment_samples / SAMPLE_RATE
 
@@ -448,8 +451,12 @@ def transcribe_stable(
             ts_token_mask = silence_preds['mask'] if suppress_ts_tokens else None
             is_silent_segment = silence_preds['is_silent']
 
+            print("\nSILENCE DATA")
+            print(str(segment_silence_timing))
+            print(str(ts_token_mask))
+            print(str(is_silent_segment))
+
             if is_silent_segment:
-                print("SILENCE", str(time_offset), str(segment_duration))
                 fast_forward()
                 continue
 
@@ -462,6 +469,11 @@ def transcribe_stable(
             result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
             tokens = torch.tensor(result.tokens)
 
+            print("\nDECODING RESULTS")
+            print(str(decode_options["prompt"]))
+            print(str(result))
+            print(str(tokens))
+
             if no_speech_threshold is not None:
                 # no voice activity check
                 should_skip = result.no_speech_prob > no_speech_threshold
@@ -470,7 +482,6 @@ def transcribe_stable(
                     should_skip = False
 
                 if should_skip:
-                    print("SHOULD SKIP", str(time_offset), str(segment_duration))
                     fast_forward()
                     continue
 
@@ -478,6 +489,10 @@ def transcribe_stable(
 
             timestamp_tokens: torch.Tensor = tokens.ge(tokenizer.timestamp_begin)
             single_timestamp_ending = timestamp_tokens[-2:].tolist() == [False, True]
+
+            print("\nTOKEN DATA")
+            print(str(timestamp_tokens))
+            print(str(single_timestamp_ending))
 
             consecutive = torch.where(timestamp_tokens[:-1] & timestamp_tokens[1:])[0]
             consecutive.add_(1)
@@ -529,14 +544,25 @@ def transcribe_stable(
                         result=result,
                     )
                 )
+            '''
+            Transcribe:   6%|▌         | 241.18/4305.55 [00:54<09:56,  6.81sec/s]
 
+            211.18 (3:31.18)
+             Liturgische Bewegung
+
+            Transcribe:   6%|▌         | 267.02/4305.55 [00:59<10:41,  6.30sec/s]
+
+            241.18 (3:41:18)
+             Ein Wort, das in einem Sinn erneuern wollte, der ihnen als modern, zeitgemäß oder auch als wissenschaftlich erschien.
+             Schon damals machte man natürlich ohne Erlaubnis des Papstes Experimente, zum Beispiel mit der Verwendung der Landessprache oder der Zelebration zum Volk hin.
+
+            Transcribe: 100%|█████████▉| 4305.51/4305.55 [14:09<00:00,  5.07sec/s]
+
+            '''
             if time_offset>204 and time_offset<245:
                 print(time_offset)
                 for i in range(len(current_segments)):
                     print(current_segments[i]["text"])
-
-            for i in range(len(current_segments)):
-                segment_texts.append(current_segments[i]["text"])
 
             for i in reversed(range(len(current_segments))):
                 seg = current_segments[i]
@@ -648,8 +674,6 @@ def transcribe_stable(
         # final update
         update_pbar()
 
-    for text in segment_texts:
-        print(text)
     if model.device != torch.device('cpu'):
         torch.cuda.empty_cache()
 
