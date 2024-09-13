@@ -323,8 +323,6 @@ def transcribe_stable(
         temperatures = [temperature] if isinstance(temperature, (int, float)) else temperature
         decode_result = None
 
-        print("NUM TEMPERATURES", len(temperatures))
-
         for t in temperatures:
             kwargs = {**decode_options}
             if t > 0:
@@ -358,6 +356,8 @@ def transcribe_stable(
                 and decode_result.no_speech_prob > no_speech_threshold
             ):
                 needs_fallback = False  # silence
+
+            print("TEMPERATURE NEEDS FALLBACK?", str(needs_fallback))
 
             if not needs_fallback:
                 break
