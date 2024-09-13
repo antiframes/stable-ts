@@ -37,11 +37,11 @@ class DecodingTaskStable(DecodingTask):
         sum_logprobs: torch.Tensor = torch.zeros(n_batch, device=audio_features.device)
         no_speech_probs = [np.nan] * n_batch
         print("SAMPLE_LEN", str(self.sample_len))
+        print("TOKENS", str(tokens))
 
         try:
             for i in range(self.sample_len):
                 logits = self.inference.logits(tokens, audio_features)
-                print("TOKENS", str(tokens))
 
                 if i == 0 and self.tokenizer.no_speech is not None:  # save no_speech_probs
                     probs_at_sot = logits[:, self.sot_index].float().softmax(dim=-1)
