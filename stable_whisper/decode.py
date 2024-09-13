@@ -36,8 +36,6 @@ class DecodingTaskStable(DecodingTask):
         n_batch = tokens.shape[0]
         sum_logprobs: torch.Tensor = torch.zeros(n_batch, device=audio_features.device)
         no_speech_probs = [np.nan] * n_batch
-        print("SAMPLE_LEN", str(self.sample_len))
-        print(str(len(tokens[0])), "TOKENS")
 
         try:
             for i in range(self.sample_len):
@@ -65,7 +63,7 @@ class DecodingTaskStable(DecodingTask):
                     break
         finally:
             self.inference.cleanup_caching()
-
+        print("UPDATED TOKEN LENGTH", str(len(tokens)))
         return tokens, sum_logprobs, no_speech_probs
 
 
@@ -111,7 +109,7 @@ def decode_stable(model: "Whisper",
     task = DecodingTaskStable(model, options, ts_token_mask=ts_token_mask, audio_features=audio_features)
     result = task.run(mel)
 
-    if not single:
-        print("RESULT", str(result.audio_features.size()), str(len(result.tokens)), str(result.language), str(result.text), str(result.avg_logprob), str(result.no_speech_prob), str(result.temperature), str(result.compression_ratio))
+    #print("RESULT", str(result[0].audio_features.size()), str(len(result[0].tokens)), str(result[0].language), str(result[0].text), str(result.avg_logprob), str(result.no_speech_prob), str(result.temperature), str(result.compression_ratio))
+    print("RESULT", str(result[0]))
 
     return result[0] if single else result, task.audio_features
