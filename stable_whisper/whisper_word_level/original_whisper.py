@@ -357,8 +357,6 @@ def transcribe_stable(
             ):
                 needs_fallback = False  # silence
 
-            print("TEMPERATURE NEEDS FALLBACK?", str(needs_fallback))
-
             if not needs_fallback:
                 break
 

@@ -63,7 +63,6 @@ class DecodingTaskStable(DecodingTask):
                     break
         finally:
             self.inference.cleanup_caching()
-        print("UPDATED TOKEN LENGTH", str(len(tokens)))
         return tokens, sum_logprobs, no_speech_probs
 
 
@@ -109,7 +108,6 @@ def decode_stable(model: "Whisper",
     task = DecodingTaskStable(model, options, ts_token_mask=ts_token_mask, audio_features=audio_features)
     result = task.run(mel)
 
-    #print("RESULT", str(result[0].audio_features.size()), str(len(result[0].tokens)), str(result[0].language), str(result[0].text), str(result.avg_logprob), str(result.no_speech_prob), str(result.temperature), str(result.compression_ratio))
-    print("RESULT", str(result[0]))
+    print("RESULT", str(result[0].audio_features.size()), str(len(result[0].tokens)), str(result[0].language), str(result[0].text), str(result[0].avg_logprob), str(result[0].no_speech_prob), str(result[0].temperature), str(result[0].compression_ratio))
 
     return result[0] if single else result, task.audio_features
