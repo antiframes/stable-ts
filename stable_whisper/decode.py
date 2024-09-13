@@ -111,6 +111,6 @@ def decode_stable(model: "Whisper",
     task = DecodingTaskStable(model, options, ts_token_mask=ts_token_mask, audio_features=audio_features)
     result = task.run(mel)
 
-    print("RESULT", str(result[0]['temperature']), str(result[0]['text']))
+    print("RESULT", str(result))
 
     return result[0] if single else result, task.audio_features
