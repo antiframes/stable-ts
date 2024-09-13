@@ -323,8 +323,7 @@ def transcribe_stable(
         temperatures = [temperature] if isinstance(temperature, (int, float)) else temperature
         decode_result = None
 
-        if print_results==True:
-            print("SUPPRESS TS TOKENS?", str(suppress_ts_tokens))
+        print("NUM TEMPERATURES", len(temperatures))
 
         for t in temperatures:
             kwargs = {**decode_options}
