@@ -316,11 +316,15 @@ def transcribe_stable(
     audio_features = None
 
     def decode_with_fallback(seg: torch.Tensor,
-                             ts_token_mask: torch.Tensor = None) \
+                             ts_token_mask: torch.Tensor = None,
+                             print_results = False) \
             -> DecodingResult:
         nonlocal audio_features
         temperatures = [temperature] if isinstance(temperature, (int, float)) else temperature
         decode_result = None
+
+        if print_results==True:
+            print("SUPPRESS TS TOKENS?", str(suppress_ts_tokens))
 
         for t in temperatures:
             kwargs = {**decode_options}
@@ -452,11 +456,6 @@ def transcribe_stable(
             ts_token_mask = silence_preds['mask'] if suppress_ts_tokens else None
             is_silent_segment = silence_preds['is_silent']
 
-            if time_offset>204 and time_offset<245:
-                print("\nSILENCE DATA")
-                print(str(segment_silence_timing))
-                print(str(ts_token_mask))
-                print(str(is_silent_segment))
 
             if is_silent_segment:
                 fast_forward()
@@ -466,20 +465,13 @@ def transcribe_stable(
             mel_segment = log_mel_spectrogram(audio_segment, model.dims.n_mels, padding=sample_padding)
             mel_segment = pad_or_trim(mel_segment, N_FRAMES).to(device=model.device, dtype=dtype)
 
-            if time_offset>204 and time_offset<245:
-                print('\nMEL SEGMENT')
-                print(str(mel_segment.size()))
-
             detect_language()
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
-            result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
-            tokens = torch.tensor(result.tokens)
-
             if time_offset>204 and time_offset<245:
-                print("\nDECODING RESULTS")
-                print(str(decode_options["prompt"]))
-                print(str(result))
-                print(str(tokens))
+                result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask, print_results=True)
+            else:
+                result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
+            tokens = torch.tensor(result.tokens)
 
             if no_speech_threshold is not None:
                 # no voice activity check
@@ -496,11 +488,6 @@ def transcribe_stable(
 
             timestamp_tokens: torch.Tensor = tokens.ge(tokenizer.timestamp_begin)
             single_timestamp_ending = timestamp_tokens[-2:].tolist() == [False, True]
-
-            if time_offset>204 and time_offset<245:
-                print("\nTOKEN DATA")
-                print(str(timestamp_tokens))
-                print(str(single_timestamp_ending))
 
             consecutive = torch.where(timestamp_tokens[:-1] & timestamp_tokens[1:])[0]
             consecutive.add_(1)
