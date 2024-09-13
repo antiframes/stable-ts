@@ -37,7 +37,7 @@ class DecodingTaskStable(DecodingTask):
         sum_logprobs: torch.Tensor = torch.zeros(n_batch, device=audio_features.device)
         no_speech_probs = [np.nan] * n_batch
         print("SAMPLE_LEN", str(self.sample_len))
-        print("TOKENS", str(tokens))
+        print(str(len(tokens)), "TOKENS")
 
         try:
             for i in range(self.sample_len):
@@ -111,6 +111,6 @@ def decode_stable(model: "Whisper",
     task = DecodingTaskStable(model, options, ts_token_mask=ts_token_mask, audio_features=audio_features)
     result = task.run(mel)
 
-    print("RESULT", str(result))
+    print("RESULT", str(result['temperature']), str(result['text']))
 
     return result[0] if single else result, task.audio_features
