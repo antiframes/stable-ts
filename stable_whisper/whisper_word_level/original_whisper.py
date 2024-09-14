@@ -339,7 +339,7 @@ def transcribe_stable(
                                                           options,
                                                           ts_token_mask=ts_token_mask if suppress_ts_tokens else None,
                                                           audio_features=audio_features)
-
+            print(str(len(decode_result.tokens)), "TOKENS")
             needs_fallback = False
             if (
                     compression_ratio_threshold is not None
@@ -444,9 +444,9 @@ def transcribe_stable(
             segment_samples = audio_segment.shape[-1]
             segment_duration = segment_samples / SAMPLE_RATE
 
-            if time_offset>245: #TODO remove when finished
+            '''if time_offset>245: #TODO remove when finished
                 fast_forward()
-                continue
+                continue'''
 
             silence_preds = nonspeech_predictor.predict(audio_segment, offset=time_offset)
             segment_silence_timing = silence_preds['timings'] if suppress_silence else None

@@ -108,7 +108,6 @@ def decode_stable(model: "Whisper",
     task = DecodingTaskStable(model, options, ts_token_mask=ts_token_mask, audio_features=audio_features)
     result = task.run(mel)
 
-    print("\n",str(len(result[0].tokens)), "TOKENS")
     #print("\nRESULT", str(len(result[0].tokens)), str(result[0].avg_logprob), str(result[0].compression_ratio), str(result[0].text))
 
     return result[0] if single else result, task.audio_features
