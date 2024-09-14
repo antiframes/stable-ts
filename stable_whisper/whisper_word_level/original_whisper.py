@@ -339,7 +339,10 @@ def transcribe_stable(
                                                           options,
                                                           ts_token_mask=ts_token_mask if suppress_ts_tokens else None,
                                                           audio_features=audio_features)
-            print(str(len(decode_result.tokens)), "TOKENS")
+
+
+            if len(decode_result.tokens) < 15:
+                print(str(len(decode_result.tokens)), "TOKENS:", decode_result.text)
             needs_fallback = False
             if (
                     compression_ratio_threshold is not None
@@ -411,6 +414,8 @@ def transcribe_stable(
     )
     audio.update_post_prep_callback(nonspeech_predictor.get_on_prep_callback(audio.stream))
 
+    token_length_list = []
+
     with tqdm(total=initial_duration, unit='sec', disable=verbose is not False, desc=task.title()) as tqdm_pbar:
 
         def update_pbar():
@@ -464,11 +469,9 @@ def transcribe_stable(
 
             detect_language()
             decode_options["prompt"] = all_tokens[prompt_reset_since:]
-            if time_offset>204 and time_offset<245:
-                result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask, print_results=True)
-            else:
-                result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
+            result: DecodingResult = decode_with_fallback(mel_segment, ts_token_mask=ts_token_mask)
             tokens = torch.tensor(result.tokens)
+
 
             if no_speech_threshold is not None:
                 # no voice activity check
